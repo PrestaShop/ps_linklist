@@ -47,7 +47,7 @@ class LinkBlockPresenter
         foreach ($cmsIds as $cmsId) {
             $cms = new CMS($cmsId);
             $cmsLinks[] = [
-                'id' => 'cms-page-'.$cms->id,
+                'id' => 'link-cms-page-'.$cms->id,
                 'class' => 'cms-page-link',
                 'title' => $cms->meta_title[$this->language->id],
                 'description' => $cms->meta_description[$this->language->id],
@@ -64,7 +64,7 @@ class LinkBlockPresenter
         foreach ($productIds as $productId) {
             $meta = Meta::getMetaByPage($productId, $this->language->id);
             $productLinks[] = [
-                'id' => 'cms-page-'.$productId,
+                'id' => 'link-product-page-'.$productId,
                 'class' => 'cms-page-link',
                 'title' => $meta['title'],
                 'description' => $meta['description'],
@@ -81,7 +81,7 @@ class LinkBlockPresenter
         foreach ($staticIds as $staticId) {
             $meta = Meta::getMetaByPage($staticId, $this->language->id);
             $staticLinks[] = [
-                'id' => 'cms-page-'.$staticId,
+                'id' => 'link-static-page-'.$staticId,
                 'class' => 'cms-page-link',
                 'title' => $meta['title'],
                 'description' => $meta['description'],
