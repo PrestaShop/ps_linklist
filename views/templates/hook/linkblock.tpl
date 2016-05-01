@@ -3,7 +3,7 @@
   <ul>
     {foreach $linkBlock.links as $link}
       <li>
-        <a  id="{$link.id}"
+        <a  id="{$link.id}-{$linkBlock.id}"
             class="{$link.class}"
             href="{$link.url}"
             title="{$link.description}">
