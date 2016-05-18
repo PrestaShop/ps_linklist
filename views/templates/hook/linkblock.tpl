@@ -3,10 +3,12 @@
   <ul>
     {foreach $linkBlock.links as $link}
       <li>
-        <a  id="{$link.id}"
-            class="{$link.class}"
-            href="{$link.url}"
-            title="{$link.description}">
+        <a
+          id="{$link.id}"
+          class="{$link.class}"
+          href="{$link.url}"
+          title="{$link.description}"
+        >
           {$link.title}
         </a>
       </li>
