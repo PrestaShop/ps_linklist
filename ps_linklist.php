@@ -25,11 +25,15 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
- use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
-
-if (!defined('_CAN_LOAD_FILES_')) {
+if (!defined('_PS_VERSION_') || !defined('_CAN_LOAD_FILES_')) {
     exit;
 }
+
+if (version_compare(_PS_VERSION_, '1.7.0.0', '<')) {
+    return;
+}
+
+use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 
 include_once(__DIR__ . '/src/LinkBlockRepository.php');
 include_once(__DIR__ . '/src/LinkBlock.php');
