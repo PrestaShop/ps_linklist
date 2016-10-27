@@ -123,7 +123,7 @@ class Ps_LinkList extends Module implements WidgetInterface
 
     public function getWidgetVariables($hookName, array $configuration)
     {
-        $id_hook = Hook::getIdByName($hookName);
+        $id_hook = Hook::getIdByName(isset($hookName) ? $hookName : $configuration['hook']);
         $linkBlocks = $this->linkBlockRepository->getByIdHook($id_hook);
 
         $blocks = array();
