@@ -143,11 +143,48 @@ class Ps_Linklist extends Module implements WidgetInterface
 
         $blocks = array();
         foreach ($linkBlocks as $block) {
-            $blocks[] = $this->linkBlockPresenter->present($block);
+            $blocks[] = $this->sortBlock($this->linkBlockPresenter->present($block));
         }
 
         return array(
             'linkBlocks' => $blocks
         );
+    }
+    
+    /**
+     * sort the links list
+     * @param $block
+     * @return mixed
+     */
+    private function sortBlock($block)
+    {
+        $newLinksList = array();
+        $notRankedLinks = array();
+        if ($block['rank']) {
+            foreach ($block['links'] as $key => $link) {
+                if (array_key_exists($link['original_id'], $block['rank'])) {
+                    $newLinksList[$block['rank'][$link['original_id']]] = $this->unsetArrayKey($link, 'original_id');
+                } else {
+                    $notRankedLinks['#'.$link['original_id']] = $this->unsetArrayKey($link, 'original_id');
+                }
+            }
+            ksort($newLinksList);
+            $block['links'] = array_merge($newLinksList, $notRankedLinks);
+        }
+
+        return $block;
+    }
+
+    /**
+     * unset array key
+     * @param array $array
+     * @param string $key
+     * @return array
+     */
+    private function unsetArrayKey($array, $key)
+    {
+        unset($array[$key]);
+        
+        return $array;
     }
 }
