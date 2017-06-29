@@ -58,7 +58,7 @@ class Ps_Linklist extends Module implements WidgetInterface
         $this->description = $this->trans('Adds a block with several links.', array(), 'Modules.Linklist.Admin');
         $this->secure_key = Tools::encrypt($this->name);
 
-        $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = array('min' => '1.7.3.0', 'max' => _PS_VERSION_);
         $this->templateFile = 'module:ps_linklist/views/templates/hook/linkblock.tpl';
 
         $this->linkBlockPresenter = new LinkBlockPresenter(new Link(), $this->context->language);
@@ -149,5 +149,18 @@ class Ps_Linklist extends Module implements WidgetInterface
         return array(
             'linkBlocks' => $blocks
         );
+    }
+
+    /**
+     * Hook displayFooter
+     * @param $params
+     * @return mixed
+     */
+    public function hookDisplayFooter($params)
+    {
+        $this->templateFile = 'module:ps_linklist/views/templates/hook/displayfooter_linkblock.tpl';
+        $this->smarty->assign($this->getWidgetVariables('displayFooter', $params));
+
+        return $this->fetch($this->templateFile, $this->getCacheId('ps_linklist|displayFooter'));
     }
 }
