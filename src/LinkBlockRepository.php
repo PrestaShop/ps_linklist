@@ -164,7 +164,7 @@ class LinkBlockRepository
             INNER JOIN {$this->db_prefix}cms_category_lang ccl
                 ON (cc.`id_cms_category` = ccl.`id_cms_category`)
             INNER JOIN {$this->db_prefix}cms_category_shop ccs
-                ON (cc.`id_cms_category` = ccs.`id_cms_category`)
+                ON (cc.`id_cms_category` = ccs.`id_cms_category` AND ccs.`id_shop` = ccl.`id_shop`)
             WHERE `active` = 1
                 AND ccl.`id_lang`= $id_lang
                 AND ccs.`id_shop`= {$this->shop->id}
@@ -183,7 +183,7 @@ class LinkBlockRepository
                     INNER JOIN {$this->db_prefix}cms_lang cl
                         ON (c.`id_cms` = cl.`id_cms`)
                     INNER JOIN {$this->db_prefix}cms_shop cs
-                        ON (c.`id_cms` = cs.`id_cms`)
+                        ON (c.`id_cms` = cs.`id_cms` AND cs.`id_shop` = cl.`id_shop`)
                     WHERE c.`active` = 1
                         AND c.`id_cms_category` = {$category['id_cms_category']}
                         AND cl.`id_lang` = $id_lang
