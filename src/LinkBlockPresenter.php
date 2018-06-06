@@ -18,6 +18,7 @@ class LinkBlockPresenter
             'title' => $cmsBlock->name[(int)$this->language->id],
             'hook' => (new Hook((int)$cmsBlock->id_hook))->name,
             'position' => $cmsBlock->position,
+            'rank' => $cmsBlock->content['rank'],
             'links' => $this->makeLinks($cmsBlock->content, $cmsBlock->custom_content),
         );
     }
@@ -55,6 +56,7 @@ class LinkBlockPresenter
             $cms = new CMS((int)$cmsId);
             if (null !== $cms->id && $cms->active) {
                 $cmsLinks[] = array(
+                    'original_id' => $cms->id,
                     'id' => 'link-cms-page-'.$cms->id,
                     'class' => 'cms-page-link',
                     'title' => $cms->meta_title[(int)$this->language->id],
@@ -74,6 +76,7 @@ class LinkBlockPresenter
             if (false !== $productId) {
                 $meta = Meta::getMetaByPage($productId, (int)$this->language->id);
                 $productLinks[] = array(
+                    'original_id' => $productId,
                     'id' => 'link-product-page-'.$productId,
                     'class' => 'cms-page-link',
                     'title' => $meta['title'],
@@ -93,6 +96,7 @@ class LinkBlockPresenter
             if (false !== $staticId) {
                 $meta = Meta::getMetaByPage($staticId, (int)$this->language->id);
                 $staticLinks[] = array(
+                    'original_id' => $staticId,
                     'id' => 'link-static-page-'.$staticId,
                     'class' => 'cms-page-link',
                     'title' => $meta['title'],
@@ -114,6 +118,7 @@ class LinkBlockPresenter
 
             $customLinks = array_map(function ($el) {
                 return array(
+                    'original_id' => $el['title'],
                     'id' => 'link-custom-page-'.$el['title'],
                     'class' => 'custom-page-link',
                     'title' => $el['title'],

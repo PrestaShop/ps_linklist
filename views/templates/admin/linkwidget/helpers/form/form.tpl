@@ -117,89 +117,57 @@
             {/foreach}
         </div>
 
-    {elseif $input.type == 'cms_pages'}
-
-    {foreach $input.values as $cms_category}
-      <div class="row">
-        <div class="col-lg-9 col-lg-offset-3">
-          <div class="panel">
-            <div class="panel-heading">
-              {$input.label} - {$cms_category.name}
-            </div>
-            <table class="table">
-              <thead>
+  {elseif $input.type == 'all_pages'}
+    <div class="row">
+      <div class="col-lg-9 col-lg-offset-3">
+        <div class="panel">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>
+                <input type="checkbox" name="checkme" id="checkme" class="noborder"/>
+              </th>
+              <th>{l s='Name' d='Modules.Linklist.Admin'}</th>
+              <th>{l s='Position' d='Modules.Linklist.Admin'}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {for $i=0 to sizeof($input.values)-1}
+              {foreach $input.values[$i] as $cms_category}
                 <tr>
-                  <th>
-                    <input type="checkbox" name="checkme" id="checkme" class="noborder" onclick="checkDelBoxes(this.form, '{$input.name}', this.checked)" />
-                  </th>
-                  <th>{l s='ID' d='Modules.Linklist.Admin'}</th>
-                  <th>{l s='Name' d='Modules.Linklist.Admin'}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {foreach $cms_category.pages as $key => $page}
-                  <tr {if $key%2}class="alt_row"{/if}>
-                    <td>
-                      <input type="checkbox" class="cmsBox" name="{$input.name}" id="{$page.id_cms}" value="{$page.id_cms}" {if in_array($page.id_cms, $fields_value['content']['cms'])}checked="checked"{/if} />
+                    <td colspan="3" bgcolor="black" >
+                        <h4>{$input.label[$i]}{if isset($cms_category.name)} - {$cms_category.name}{/if}</h4>
                     </td>
-                    <td class="fixed-width-xs">
-                      {$page.id_cms}
+                </tr>
+                {foreach $cms_category.pages as $key => $page}
+                  <tr {if $key%2}class="alt_row"{/if} name="links">
+                    <td>
+                      {if $input.sub_type[$i] == 'cms_pages'}
+                        <input type="checkbox" class="cmsBox" name="{$input.name[$i]}" id="{$page.id_cms}" value="{$page.id_cms}" {if in_array($page.id_cms, $fields_value['content']['cms'])}checked="checked"{/if} />
+                      {elseif $input.sub_type[$i] == 'product_pages'}
+                        <input type="checkbox" class="cmsBox" name="{$input.name[$i]}" id="{$page.id_cms}" value="{$page.id_cms}" {if in_array($page.id_cms, $fields_value['content']['product'])}checked="checked"{/if} />
+                      {elseif $input.sub_type[$i] == 'static_pages'}
+                        <input type="checkbox" class="cmsBox" name="{$input.name[$i]}" id="{$page.id_cms}" value="{$page.id_cms}" {if in_array($page.id_cms, $fields_value['content']['static'])}checked="checked"{/if} />
+                      {/if}
                     </td>
                     <td>
                       <label class="control-label" for="{$page.id_cms}">
                         {$page.title|escape}
                       </label>
                     </td>
+                    <td>
+                      <input type="number" name="{$input.position}" class="form-control js-linklist-rank" min="1" value="{if (isset($fields_value['content']['rank']) && $fields_value['content']['rank'] && array_key_exists($page.id_cms, $fields_value['content']['rank']))}{$fields_value['content']['rank'][$page.id_cms]}{/if}">
+                      <input type="hidden" name="{$input.position_id}" value="{$page.id_cms}">
+                    </td>
                   </tr>
                 {/foreach}
-              </tbody>
-            </table>
-          </div>
+              {/foreach}
+            {/for}
+            </tbody>
+          </table>
         </div>
       </div>
-    {/foreach}
-
-    {elseif $input.type == 'product_pages' || $input.type == 'static_pages'}
-
-      {foreach $input.values as $cms_category}
-        <div class="row">
-          <div class="col-lg-9 col-lg-offset-3">
-            <div class="panel">
-              <div class="panel-heading">
-                {$input.label}
-              </div>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>
-                      <input type="checkbox" name="checkme" id="checkme" class="noborder" onclick="checkDelBoxes(this.form, '{$input.name}', this.checked)" />
-                    </th>
-                    <th>{l s='Name' d='Modules.Linklist.Admin'}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {foreach $cms_category.pages as $key => $page}
-                    <tr {if $key%2}class="alt_row"{/if}>
-                      <td>
-                        {if $input.type == 'product_pages'}
-                          <input type="checkbox" class="cmsBox" name="{$input.name}" id="{$page.id_cms}" value="{$page.id_cms}" {if in_array($page.id_cms, $fields_value['content']['product'])}checked="checked"{/if} />
-                        {elseif $input.type == 'static_pages'}
-                          <input type="checkbox" class="cmsBox" name="{$input.name}" id="{$page.id_cms}" value="{$page.id_cms}" {if in_array($page.id_cms, $fields_value['content']['static'])}checked="checked"{/if} />
-                        {/if}
-                      </td>
-                      <td>
-                        <label class="control-label" for="{$page.id_cms}">
-                          {$page.title|escape}
-                        </label>
-                      </td>
-                    </tr>
-                  {/foreach}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      {/foreach}
+    </div>
 
     {elseif $input.type == 'custom_pages'}
 
@@ -257,7 +225,9 @@
         </div>
 
         <script type="application/javascript">
+          var listLink = [];
           $(document).ready(function() {
+            listLink = rankList();
             function clearCustomLink () {
               $(this).closest('tbody').find('tr:last-of-type > td > a.js-clear-custom-link').hide();
               $(this).closest('tr').remove();
@@ -267,7 +237,8 @@
 
             $('a.js-clear-custom-link').click(clearCustomLink);
 
-            function addCustomLinkRow() {
+            /** Adding new custom link */
+            var addCustomLinkRow = function addCustomLinkRow() {
               var tbody = $('table.js-custom-links-table-{$lang['id_lang']} > tbody');
               var lastTr = tbody.find('tr:last-of-type');
               var i = lastTr ? lastTr.data('item') + 1 : 0;
@@ -285,7 +256,7 @@
 
               tbody.find('tr > td > a.js-clear-custom-link').show();
               tbody.find('tr:last-of-type > td > a.js-clear-custom-link').hide();
-            }
+            };
 
             addCustomLinkRow();
 
@@ -295,6 +266,60 @@
               return false;
             });
           });
+
+          /** get rankLink list */
+          var rankList = function rankList() {
+            var list = [];
+            $('[name=links] >td >input[type=number]').each(function ()
+            {
+              var value =$(this).val();
+              if ("" !== value)
+                list.push(parseInt(value));
+            });
+
+            return list;
+          };
+
+          /**
+           * Switch the submit button state
+           * @param Object input - the input of position
+           * @param boolean hasError
+           */
+          var switchSubmitButtonState = function switchSubmitButtonState(input, hasError) {
+            if (hasError) {
+              $(input).parent().addClass("has-error");
+              $('#configuration_form_submit_btn').prop('disabled', 'disabled');
+            } else {
+              $(input).parent().removeClass("has-error");
+              if ($('td.has-error .js-linklist-rank').length === 0 ) {
+                $('#configuration_form_submit_btn').removeProp('disabled');
+              }
+            }
+          };
+
+          /** verify rank of link */
+          $('.js-linklist-rank').on('change',function (e) {
+            e.stopImmediatePropagation();
+            var rank = parseInt(this.value);
+
+            if (rank >= 0) {
+              var hasError = ($.inArray(rank, listLink) !== -1);
+              switchSubmitButtonState(this, hasError);
+            } else {
+              switchSubmitButtonState(this, true);
+            }
+
+            listLink = rankList();
+          });
+
+          /** check the checkedBox */
+          $('#checkme').on('click', function () {
+            var checked = this.checked;
+            $('#' + this.form.id + ' input[type=checkbox]').each(function () {
+              $(this).prop('checked', checked);
+            });
+          });
+
         </script>
       {/foreach}
     {else}

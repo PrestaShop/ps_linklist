@@ -119,7 +119,7 @@ class AdminLinkWidgetController extends ModuleAdminController
             'tinymce' => true,
             'legend' => array(
                 'title' => isset($block) ? $this->trans('Edit the link block.', array(), 'Modules.Linklist.Admin') : $this->trans('New link block', array(), 'Modules.Linklist.Admin'),
-                'icon' => isset($block) ? 'icon-edit' : 'icon-plus-square'
+                'icon' => isset($block) ? 'icon-edit' : 'icon-plus-square',
             ),
             'input' => array(
                 array(
@@ -145,46 +145,51 @@ class AdminLinkWidgetController extends ModuleAdminController
                     )
                 ),
                 array(
-                    'type' => 'cms_pages',
-                    'label' => $this->trans('Content pages', array(), 'Modules.Linklist.Admin'),
-                    'name' => 'cms[]',
-                    'values' => $this->repository->getCmsPages(),
-                    'desc' => $this->trans('Please mark every page that you want to display in this block.', array(), 'Modules.Linklist.Admin')
-                ),
-                array(
-                    'type' => 'product_pages',
-                    'label' => $this->trans('Product pages', array(), 'Modules.Linklist.Admin'),
-                    'name' => 'product[]',
-                    'values' => $this->repository->getProductPages(),
-                    'desc' => $this->trans('Please mark every page that you want to display in this block.', array(), 'Modules.Linklist.Admin')
-                ),
-                array(
-                    'type' => 'static_pages',
-                    'label' => $this->trans('Static content', array(), 'Modules.Linklist.Admin'),
-                    'name' => 'static[]',
-                    'values' => $this->repository->getStaticPages(),
-                    'desc' => $this->trans('Please mark every page that you want to display in this block.', array(), 'Modules.Linklist.Admin')
+                    'type' => 'all_pages',
+                    'sub_type' => array(
+                        'cms_pages',
+                        'product_pages',
+                        'static_pages',
+                    ),
+                    'label' => array(
+                        $this->trans('Content pages', array(), 'Modules.Linklist.Admin'),
+                        $this->trans('Product pages', array(), 'Modules.Linklist.Admin'),
+                        $this->trans('Static content', array(), 'Modules.Linklist.Admin'),
+                    ),
+                    'name' => array(
+                        'cms[]',
+                        'product[]',
+                        'static[]',
+                    ),
+                    'values' => array(
+                        $this->repository->getCmsPages(),
+                        $this->repository->getProductPages(),
+                        $this->repository->getStaticPages(),
+                    ),
+                    'desc' => $this->trans('Please mark every page that you want to display in this block.', array(), 'Modules.Linklist.Admin'),
+                    'position' => 'rank[]',
+                    'position_id' => 'rank_id[]',
                 ),
                 array(
                     'type' => 'custom_pages',
                     'label' => $this->trans('Custom content', array(), 'Modules.Linklist.Admin'),
                     'name' => 'custom[]',
                     'values' => $this->repository->getCustomPages($block),
-                    'desc' => $this->trans('Please add every page that you want to display in this block.', array(), 'Modules.Linklist.Admin')
+                    'desc' => $this->trans('Please add every page that you want to display in this block.', array(), 'Modules.Linklist.Admin'),
                 ),
             ),
             'buttons' => array(
                 'cancelBlock' => array(
                     'title' => $this->trans('Cancel', array(), 'Admin.Actions'),
                     'href' => (Tools::safeOutput(Tools::getValue('back', false)))
-                                ?: $this->context->link->getAdminLink('Admin'.$this->name),
-                    'icon' => 'process-icon-cancel'
-                )
+                        ?: $this->context->link->getAdminLink('Admin'.$this->name),
+                    'icon' => 'process-icon-cancel',
+                ),
             ),
             'submit' => array(
                 'name' => 'submit'.$this->className,
                 'title' => $this->trans('Save', array(), 'Admin.Actions'),
-            )
+            ),
         );
 
         if ($id_hook = Tools::getValue('id_hook')) {
@@ -277,7 +282,10 @@ class AdminLinkWidgetController extends ModuleAdminController
             $content .= '"product":[' . (empty($product) ? 'false': '"' . implode('","', array_map('bqSQL', $product)) . '"') . '],';
 
             $static = Tools::getValue('static');
-            $content .= '"static":[' . (empty($static) ? 'false': '"' . implode('","', array_map('bqSQL', $static)) . '"') . ']}';
+            $content .= '"static":[' . (empty($static) ? 'false': '"' . implode('","', array_map('bqSQL', $static)) . '"') . '],';
+
+            $position = $this->getBlockRank(Tools::getValue('rank_id'), Tools::getValue('rank'));
+            $content .= empty($position) ? '"rank":false}' : '"rank":{' . $position . '}}';
 
             $customs = Tools::getValue('custom');
             foreach ($customs as &$custom) {
@@ -315,5 +323,23 @@ class AdminLinkWidgetController extends ModuleAdminController
         }
 
         return $success;
+    }
+
+    /**
+     * Return all ranks of links
+     * @param array $key
+     * @param array $position
+     * @return string
+     */
+    private function getBlockRank($key, $position)
+    {
+        $rank = '';
+        for ($i = 0; $i < sizeof($position); $i++) {
+            if (!empty($position[$i])) {
+                $rank .= '"' . $key[$i] . '":"' . $position[$i] . '",';
+            }
+        }
+
+        return rtrim($rank, ',');
     }
 }
