@@ -98,6 +98,7 @@ class LinkBlock extends \ObjectModel
                 'cms' => array(),
                 'product' => array(),
                 'static' => array(),
+                'category' => array(),
             );
         }
     }

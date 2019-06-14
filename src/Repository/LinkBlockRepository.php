@@ -124,6 +124,7 @@ class LinkBlockRepository
                     'cms' => empty($data['cms']) ? [false] : $data['cms'],
                     'static' => empty($data['static']) ? [false] : $data['static'],
                     'product' => empty($data['product']) ? [false] : $data['product'],
+                    'category' => empty($data['category']) ? [false] : $data['category'],
                 ]),
             ]);
 
@@ -156,6 +157,7 @@ class LinkBlockRepository
                     'cms' => empty($data['cms']) ? [false] : $data['cms'],
                     'static' => empty($data['static']) ? [false] : $data['static'],
                     'product' => empty($data['product']) ? [false] : $data['product'],
+                    'category' => empty($data['category']) ? [false] : $data['category'],
                 ]),
             ])
         ;

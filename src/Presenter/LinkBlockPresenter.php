@@ -95,7 +95,7 @@ class LinkBlockPresenter
      */
     private function makeLinks($content, $custom_content)
     {
-        $cmsLinks = $productLinks = $staticsLinks = $customLinks = array();
+        $cmsLinks = $productLinks = $staticsLinks = $customLinks = $categoryLinks = array();
 
         if (isset($content['cms'])) {
             $cmsLinks = $this->makeCmsLinks($content['cms']);
@@ -109,13 +109,19 @@ class LinkBlockPresenter
             $staticsLinks = $this->makeStaticLinks($content['static']);
         }
 
+        if (isset($content['category'])) {
+            $categoryLinks = $this->makeCategoryLinks($content['category']);
+        }
+
+
         $customLinks = $this->makeCustomLinks($custom_content);
 
         return array_merge(
             $cmsLinks,
             $productLinks,
             $staticsLinks,
-            $customLinks
+            $customLinks,
+            $categoryLinks
         );
     }
 
@@ -220,5 +226,29 @@ class LinkBlockPresenter
         }
 
         return $customLinks;
+    }
+
+    /**
+     * @param array $categoryIds
+     *
+     * @return array
+     */
+    private function makeCategoryLinks($categoryIds)
+    {
+        $categoryLinks = array();
+        foreach ($categoryIds as $categoryId) {
+            if (false !== $categoryId) {
+                $meta = \Meta::getCategoryMetas($categoryId, (int) $this->language->id, null, null);
+                $categoryLinks[] = array(
+                    'id' => 'link-category-' . $categoryId,
+                    'class' => 'category-link',
+                    'title' => $meta['name'],
+                    'description' => $meta['description'],
+                    'url' => $this->link->getCategoryLink($categoryId, true),
+                );
+            }
+        }
+
+        return $categoryLinks;
     }
 }

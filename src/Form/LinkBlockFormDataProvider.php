@@ -128,6 +128,7 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
             'cms' => $arrayLinkBlock['content']['cms'],
             'product' => $arrayLinkBlock['content']['product'],
             'static' => $arrayLinkBlock['content']['static'],
+            'category' => $arrayLinkBlock['content']['category'],
             'custom' => $arrayCustom,
         ]];
     }
