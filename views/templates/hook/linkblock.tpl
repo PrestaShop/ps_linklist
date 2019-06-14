@@ -38,7 +38,6 @@
           {$link.title}
         </a>
       </li>
-        {print_r($link.description)}
     {/foreach}
   </ul>
 {/foreach}
