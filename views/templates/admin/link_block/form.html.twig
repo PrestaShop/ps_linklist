@@ -59,6 +59,8 @@
                                     <button data-collection-id="{{ linkBlockForm.link_block.custom.vars.id }}" class="btn btn-primary add-collection-btn">{{ 'Add'|trans({}, 'Admin.Actions') }}</button>
                                 </div>
                             </div>
+                            {{ form_rest(linkBlockForm.link_block) }}
+                            {% do linkBlockForm.link_block.setRendered %}
                             {{ form_rest(linkBlockForm) }}
                         </div>
                     </div>
