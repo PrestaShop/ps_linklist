@@ -4,6 +4,11 @@
 
 Adds a block with several links.
 
+## Multistore compatibility
+
+This module is not compatible with the multistore :x: <br/>
+It can't be configured differently from one store to another.<br/>
+
 ## Building assets
 
 If you need to change the javascript code you have to compile the assets, this operation is done
