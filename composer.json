@@ -23,8 +23,7 @@
     "exclude-from-classmap": []
   },
   "config": {
-    "preferred-install": "dist",
-    "prepend-autoloader": false
+    "preferred-install": "dist"
   },
   "type": "prestashop-module"
 }
