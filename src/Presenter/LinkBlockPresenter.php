@@ -137,7 +137,7 @@ class LinkBlockPresenter
         foreach ($cmsIds as $cmsId) {
             $cms = new \CMS((int) $cmsId);
             if (null !== $cms->id && $cms->active) {
-                $cmsLinks[] = [
+                $cmsLinks[$cms->position] = [
                     'id' => 'link-cms-page-' . $cms->id,
                     'class' => 'cms-page-link',
                     'title' => $cms->meta_title[(int) $this->language->id],
@@ -146,6 +146,8 @@ class LinkBlockPresenter
                 ];
             }
         }
+
+        ksort($cmsLinks, SORT_NUMERIC);
 
         return $cmsLinks;
     }
