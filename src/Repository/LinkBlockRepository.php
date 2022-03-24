@@ -25,6 +25,7 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Hook;
+use PrestaShop\PrestaShop\Adapter\Tools;
 use PrestaShop\Module\LinkList\Adapter\ObjectModelHandler;
 use PrestaShop\PrestaShop\Adapter\Shop\Context;
 use PrestaShop\PrestaShop\Core\Exception\DatabaseException;
