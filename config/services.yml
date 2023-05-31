@@ -170,3 +170,5 @@ services:
 
   PrestaShop\Module\LinkList\Controller\Admin\Improve\Design\LinkBlockController:
     autowire: true
+    autoconfigure: true
+
