@@ -47,7 +47,7 @@ final class CategoryChoiceProvider extends AbstractDatabaseChoiceProvider
         $categories = $qb->execute()->fetchAll();
         $choices = [];
         foreach ($categories as $category) {
-            $choices[$category['name']] = $category['id_category'];
+            $choices[$category['id_category'] . ' ' . $category['name']] = $category['id_category'];
         }
 
         return $choices;
