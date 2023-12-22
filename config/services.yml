@@ -2,6 +2,9 @@ services:
   _defaults:
     public: true
 
+  PrestaShop\Module\LinkList\Controller\Admin\Improve\Design\LinkBlockController:
+    autowire: true
+
   prestashop.module.link_block.cache:
     class: PrestaShop\Module\LinkList\Cache\LegacyLinkBlockCache
 
