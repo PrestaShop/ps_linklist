@@ -10,7 +10,7 @@ services:
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
-      $languages: '@=service("prestashop.adapter.legacy.context").getLanguages(false, service("prestashop.adapter.shop.context").getContextShopID())'
+      $languages: '@=service("prestashop.adapter.legacy.context").getLanguages(false)'
       $translator: '@translator'
       $isMultiStoreUsed: '@=service("prestashop.adapter.feature.multistore").isUsed()'
       $multiStoreContext: '@prestashop.adapter.shop.context'
