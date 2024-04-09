@@ -59,7 +59,7 @@ final class CMSPageChoiceProvider extends AbstractDatabaseChoiceProvider
     {
         $choices = [];
 
-        foreach ($this->categories as $categoryName => $categoryId) {
+        foreach ($this->categories as $categoryId => $categoryName) {
             $qb = $this->connection->createQueryBuilder();
             $qb
                 ->select('c.id_cms, cl.meta_title')
@@ -77,7 +77,7 @@ final class CMSPageChoiceProvider extends AbstractDatabaseChoiceProvider
             ;
             $pages = $qb->execute()->fetchAll();
             foreach ($pages as $page) {
-                $choices[$categoryName][$page['id_cms'] . ' ' . $page['meta_title']] = $page['id_cms'];
+                $choices[$categoryName][sprintf('%s (%d)', $page['meta_title'], $page['id_cms'])] = $page['id_cms'];
             }
         }
 

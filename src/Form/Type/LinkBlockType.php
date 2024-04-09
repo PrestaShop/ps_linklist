@@ -151,7 +151,7 @@ class LinkBlockType extends TranslatorAwareType
                 'expanded' => true,
             ])
             ->add('category', ChoiceType::class, [
-                'choices' => $this->categoryChoices,
+                'choices' => array_flip($this->categoryChoices),
                 'label' => $this->trans('Categories', 'Modules.Linklist.Admin'),
                 'multiple' => true,
                 'expanded' => true,

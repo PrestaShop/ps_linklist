@@ -47,7 +47,7 @@ final class CMSCategoryChoiceProvider extends AbstractDatabaseChoiceProvider
         $categories = $qb->execute()->fetchAll();
         $choices = [];
         foreach ($categories as $category) {
-            $choices[$category['name']] = $category['id_cms_category'];
+            $choices[$category['id_cms_category']] = sprintf('%s (%d)', $category['name'], $category['id_cms_category']);
         }
 
         return $choices;
