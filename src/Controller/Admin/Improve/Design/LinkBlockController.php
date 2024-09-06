@@ -20,38 +20,29 @@
 
 namespace PrestaShop\Module\LinkList\Controller\Admin\Improve\Design;
 
+use PrestaShop\Module\LinkList\Cache\LegacyLinkBlockCache;
 use PrestaShop\Module\LinkList\Core\Grid\LinkBlockGridFactory;
 use PrestaShop\Module\LinkList\Core\Search\Filters\LinkBlockFilters;
 use PrestaShop\Module\LinkList\Form\LinkBlockFormDataProvider;
 use PrestaShop\Module\LinkList\Repository\LinkBlockRepository;
+use PrestaShop\PrestaShop\Core\Context\ShopContext;
 use PrestaShop\PrestaShop\Core\Exception\DatabaseException;
 use PrestaShop\PrestaShop\Core\Form\FormHandlerInterface;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
-use PrestaShopBundle\Security\Annotation\AdminSecurity;
+use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
+use PrestaShopBundle\Security\Attribute\AdminSecurity;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class LinkBlockController extends FrameworkBundleAdminController
+class LinkBlockController extends PrestaShopAdminController
 {
-    /**
-     * @AdminSecurity("is_granted('read', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function listAction(Request $request)
+    #[AdminSecurity("is_granted('read', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function listAction(Request $request, LinkBlockRepository $repository, LinkBlockGridFactory $linkBlockGridFactory): Response
     {
-        //Get hook list, then loop through hooks setting it in in the filter
-        /** @var LinkBlockRepository $repository */
-        $repository = $this->get('prestashop.module.link_block.repository');
+        // Get hook list, then loop through hooks setting it in the filter
         $hooks = $repository->getHooksWithLinks();
-
         $filtersParams = $this->buildFiltersParamsByRequest($request);
-
-        /** @var LinkBlockGridFactory $linkBlockGridFactory */
-        $linkBlockGridFactory = $this->get('prestashop.module.link_block.grid.factory');
         $grids = $linkBlockGridFactory->getGrids($hooks, $filtersParams);
 
         $presentedGrids = [];
@@ -74,19 +65,15 @@ class LinkBlockController extends FrameworkBundleAdminController
         ]);
     }
 
-    /**
-     * @AdminSecurity("is_granted('create', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param Request $request
-     *
-     * @return Response
-     *
-     * @throws \Exception
-     */
-    public function createAction(Request $request)
-    {
-        $this->get('prestashop.module.link_block.form_provider')->setIdLinkBlock(null);
-        $form = $this->get('prestashop.module.link_block.form_handler')->getForm();
+    #[AdminSecurity("is_granted('create', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function createAction(
+        Request $request,
+        LinkBlockFormDataProvider $linkBlockFormDataProvider,
+        #[Autowire(service: 'prestashop.module.link_block.form_handler')]
+        FormHandlerInterface $formHandler,
+    ): Response {
+        $linkBlockFormDataProvider->setIdLinkBlock(null);
+        $form = $formHandler->getForm();
 
         return $this->render('@Modules/ps_linklist/views/templates/admin/link_block/form.html.twig', [
             'linkBlockForm' => $form->createView(),
@@ -96,20 +83,16 @@ class LinkBlockController extends FrameworkBundleAdminController
         ]);
     }
 
-    /**
-     * @AdminSecurity("is_granted('update', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param Request $request
-     * @param int $linkBlockId
-     *
-     * @return Response
-     *
-     * @throws \Exception
-     */
-    public function editAction(Request $request, $linkBlockId)
-    {
-        $this->get('prestashop.module.link_block.form_provider')->setIdLinkBlock($linkBlockId);
-        $form = $this->get('prestashop.module.link_block.form_handler')->getForm();
+    #[AdminSecurity("is_granted('update', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function editAction(
+        Request $request,
+        int $linkBlockId,
+        LinkBlockFormDataProvider $linkBlockFormDataProvider,
+        #[Autowire(service: 'prestashop.module.link_block.form_handler')]
+        FormHandlerInterface $formHandler,
+    ): Response {
+        $linkBlockFormDataProvider->setIdLinkBlock($linkBlockId);
+        $form = $formHandler->getForm();
 
         return $this->render('@Modules/ps_linklist/views/templates/admin/link_block/form.html.twig', [
             'linkBlockForm' => $form->createView(),
@@ -119,49 +102,37 @@ class LinkBlockController extends FrameworkBundleAdminController
         ]);
     }
 
-    /**
-     * @AdminSecurity("is_granted('create', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param Request $request
-     *
-     * @return RedirectResponse|Response
-     *
-     * @throws \Exception
-     */
-    public function createProcessAction(Request $request)
-    {
-        return $this->processForm($request, 'Successful creation.');
+    #[AdminSecurity("is_granted('create', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function createProcessAction(
+        Request $request,
+        LinkBlockFormDataProvider $formProvider,
+        #[Autowire(service: 'prestashop.module.link_block.form_handler')]
+        FormHandlerInterface $formHandler,
+    ): RedirectResponse|Response {
+        return $this->processForm($request, 'Successful creation.', null, $formProvider, $formHandler);
     }
 
-    /**
-     * @AdminSecurity("is_granted('update', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param Request $request
-     * @param int $linkBlockId
-     *
-     * @return RedirectResponse|Response
-     *
-     * @throws \Exception
-     */
-    public function editProcessAction(Request $request, $linkBlockId)
-    {
-        return $this->processForm($request, 'Successful update.', $linkBlockId);
+    #[AdminSecurity("is_granted('update', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function editProcessAction(
+        Request $request,
+        int $linkBlockId,
+        LinkBlockFormDataProvider $formProvider,
+        #[Autowire(service: 'prestashop.module.link_block.form_handler')]
+        FormHandlerInterface $formHandler,
+    ): RedirectResponse|Response {
+        return $this->processForm($request, 'Successful update.', $linkBlockId, $formProvider, $formHandler);
     }
 
-    /**
-     * @AdminSecurity("is_granted('delete', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param int $linkBlockId
-     *
-     * @return RedirectResponse
-     */
-    public function deleteAction($linkBlockId)
-    {
-        $repository = $this->get('prestashop.module.link_block.repository');
+    #[AdminSecurity("is_granted('delete', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function deleteAction(
+        int $linkBlockId,
+        LegacyLinkBlockCache $linkBlockCache,
+        LinkBlockRepository $linkBlockRepository,
+    ): RedirectResponse {
         $errors = [];
         try {
-            $repository->delete($linkBlockId);
-        } catch (DatabaseException $e) {
+            $linkBlockRepository->delete($linkBlockId);
+        } catch (DatabaseException) {
             $errors[] = [
                 'key' => 'Could not delete #%i',
                 'domain' => 'Admin.Catalog.Notification',
@@ -170,64 +141,49 @@ class LinkBlockController extends FrameworkBundleAdminController
         }
 
         if (0 === count($errors)) {
-            $this->clearModuleCache();
-            $this->addFlash('success', $this->trans('Successful deletion.', 'Admin.Notifications.Success'));
+            $linkBlockCache->clearModuleCache();
+            $this->addFlash('success', $this->trans('Successful deletion.', [], 'Admin.Notifications.Success'));
         } else {
-            $this->flashErrors($errors);
+            $this->addFlashErrors($errors);
         }
 
         return $this->redirectToRoute('admin_link_block_list');
     }
 
-    /**
-     * @AdminSecurity("is_granted('update', request.get('_legacy_controller'))", message="Access denied.")
-     *
-     * @param Request $request
-     * @param int $hookId
-     *
-     * @throws \Exception
-     *
-     * @return RedirectResponse
-     */
-    public function updatePositionsAction(Request $request, $hookId)
-    {
+    #[AdminSecurity("is_granted('update', request.get('_legacy_controller'))", redirectRoute: 'admin_homepage')]
+    public function updatePositionsAction(
+        Request $request,
+        int $hookId,
+        LegacyLinkBlockCache $linkBlockCache,
+        LinkBlockRepository $linkBlockRepository,
+        ShopContext $shopContext,
+    ): RedirectResponse {
         $positionsData = [
             'positions' => $request->request->all()['positions'],
             'parentId' => $hookId,
         ];
 
-        /** @var LinkBlockRepository $repository */
-        $repository = $this->get('prestashop.module.link_block.repository');
-
         try {
-            $repository->updatePositions($this->getContext()->shop->id, $positionsData);
-            $this->clearModuleCache();
-            $this->addFlash('success', $this->trans('Successful update.', 'Admin.Notifications.Success'));
+            $linkBlockRepository->updatePositions($shopContext->getId(), $positionsData);
+            $linkBlockCache->clearModuleCache();
+            $this->addFlash('success', $this->trans('Successful update.', [], 'Admin.Notifications.Success'));
         } catch (DatabaseException $e) {
             $errors = [$e->getMessage()];
-            $this->flashErrors($errors);
+            $this->addFlashErrors($errors);
         }
 
         return $this->redirectToRoute('admin_link_block_list');
     }
 
-    /**
-     * @param Request $request
-     * @param string $successMessage
-     * @param int|null $linkBlockId
-     *
-     * @return Response|RedirectResponse
-     *
-     * @throws \Exception
-     */
-    private function processForm(Request $request, $successMessage, $linkBlockId = null)
-    {
-        /** @var LinkBlockFormDataProvider $formProvider */
-        $formProvider = $this->get('prestashop.module.link_block.form_provider');
+    private function processForm(
+        Request $request,
+        string $successMessage,
+        ?int $linkBlockId,
+        LinkBlockFormDataProvider $formProvider,
+        #[Autowire(service: 'prestashop.module.link_block.form_handler')]
+        FormHandlerInterface $formHandler,
+    ): RedirectResponse|Response {
         $formProvider->setIdLinkBlock($linkBlockId);
-
-        /** @var FormHandlerInterface $formHandler */
-        $formHandler = $this->get('prestashop.module.link_block.form_handler');
         $form = $formHandler->getForm();
         $form->handleRequest($request);
 
@@ -235,18 +191,17 @@ class LinkBlockController extends FrameworkBundleAdminController
             if ($form->isValid()) {
                 $saveErrors = $formHandler->save($form->getData());
                 if (0 === count($saveErrors)) {
-                    $this->addFlash('success', $this->trans($successMessage, 'Admin.Notifications.Success'));
+                    $this->addFlash('success', $this->trans($successMessage, [], 'Admin.Notifications.Success'));
 
                     return $this->redirectToRoute('admin_link_block_list');
                 }
-
-                $this->flashErrors($saveErrors);
+                $this->addFlashErrors($saveErrors);
             }
             $formErrors = [];
             foreach ($form->getErrors(true) as $error) {
                 $formErrors[] = $error->getMessage();
             }
-            $this->flashErrors($formErrors);
+            $this->addFlashErrors($formErrors);
         }
 
         return $this->render('@Modules/ps_linklist/views/templates/admin/link_block/form.html.twig', [
@@ -257,12 +212,7 @@ class LinkBlockController extends FrameworkBundleAdminController
         ]);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return array
-     */
-    protected function buildFiltersParamsByRequest(Request $request)
+    protected function buildFiltersParamsByRequest(Request $request): array
     {
         $filtersParams = array_merge(LinkBlockFilters::getDefaults(), $request->query->all());
 
@@ -271,25 +221,15 @@ class LinkBlockController extends FrameworkBundleAdminController
 
     /**
      * Gets the header toolbar buttons.
-     *
-     * @return array
      */
-    private function getToolbarButtons()
+    private function getToolbarButtons(): array
     {
         return [
             'add' => [
                 'href' => $this->generateUrl('admin_link_block_create'),
-                'desc' => $this->trans('New block', 'Modules.Linklist.Admin'),
+                'desc' => $this->trans('New block', [], 'Modules.Linklist.Admin'),
                 'icon' => 'add_circle_outline',
             ],
         ];
-    }
-
-    /**
-     * Clear module cache.
-     */
-    private function clearModuleCache()
-    {
-        $this->get('prestashop.module.link_block.cache')->clearModuleCache();
     }
 }

@@ -216,20 +216,12 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
         return [];
     }
 
-    /**
-     * @return int
-     */
-    public function getIdLinkBlock()
+    public function getIdLinkBlock(): ?int
     {
         return $this->idLinkBlock;
     }
 
-    /**
-     * @param int $idLinkBlock
-     *
-     * @return LinkBlockFormDataProvider
-     */
-    public function setIdLinkBlock($idLinkBlock)
+    public function setIdLinkBlock(?int $idLinkBlock)
     {
         $this->idLinkBlock = $idLinkBlock;
 
