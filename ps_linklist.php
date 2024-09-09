@@ -73,7 +73,7 @@ class Ps_Linklist extends Module implements WidgetInterface
     {
         $this->name = 'ps_linklist';
         $this->author = 'PrestaShop';
-        $this->version = '6.0.7';
+        $this->version = '7.0.0';
         $this->need_instance = 0;
         $this->tab = 'front_office_features';
 
@@ -99,7 +99,7 @@ class Ps_Linklist extends Module implements WidgetInterface
         $this->displayName = $this->trans('Link List', [], 'Modules.Linklist.Admin');
         $this->description = $this->trans('Give more visibility to your content/static pages (CMS, external pages, or else), where you want and when you want, to make your visitors feel like shopping on your store.', [], 'Modules.Linklist.Admin');
 
-        $this->ps_versions_compliancy = ['min' => '8.1.0', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '9.0.0', 'max' => _PS_VERSION_];
         $this->templateFile = 'module:ps_linklist/views/templates/hook/linkblock.tpl';
         $this->templateFileColumn = 'module:ps_linklist/views/templates/hook/linkblock-column.tpl';
 

@@ -6,3 +6,4 @@
 !vendor/index.php
 !vendor/.htaccess
 /.php_cs.cache
+.php-cs-fixer.cache
