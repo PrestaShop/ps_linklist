@@ -35,7 +35,7 @@ final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
      *
      * @return QueryBuilder
      */
-    public function getSearchQueryBuilder(SearchCriteriaInterface $searchCriteria = null)
+    public function getSearchQueryBuilder(?SearchCriteriaInterface $searchCriteria = null)
     {
         $qb = $this->getQueryBuilder($searchCriteria->getFilters());
         $qb->select('
@@ -70,7 +70,7 @@ final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
      *
      * @return QueryBuilder
      */
-    public function getCountQueryBuilder(SearchCriteriaInterface $searchCriteria = null)
+    public function getCountQueryBuilder(?SearchCriteriaInterface $searchCriteria = null)
     {
         $qb = $this->getQueryBuilder($searchCriteria->getFilters());
         $qb->select('COUNT(DISTINCT(lb.id_link_block))');

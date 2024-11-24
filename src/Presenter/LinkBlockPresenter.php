@@ -41,7 +41,7 @@ class LinkBlockPresenter
      * @param \Link $link
      * @param \Language $language
      */
-    public function __construct(\Link $link, \Language $language, LinkFilter $linkFilter = null)
+    public function __construct(\Link $link, \Language $language, ?LinkFilter $linkFilter = null)
     {
         $this->link = $link;
         $this->language = $language;
