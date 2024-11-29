@@ -49,12 +49,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        presta-versions: ['nightly']
+        presta-version: [ 'nightly', '9.0.x' ]
+        # The 8.4 compatibility is not available yet, this should be uncommented whe the dockers are ready
+        # php-version: [ '8.1', '8.2', '8.3', '8.4' ]
+        php-version: [ '8.1', '8.2', '8.3' ]
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: ${{ matrix.php-version }})
 
       - name: Checkout
         uses: actions/checkout@v3.1.0
@@ -76,5 +79,5 @@ jobs:
       - run: composer install
 
       # Docker images prestashop/prestashop may be used, even if the shop remains uninstalled
-      - name: Execute PHPStan on PrestaShop (Tag ${{ matrix.presta-versions }})
-        run: ./tests/phpstan.sh ${{ matrix.presta-versions }} --error-format=github
+      - name: Execute PHPStan on PrestaShop (Tag ${{ matrix.presta-version }}-${{ matrix.php-version }}))
+        run: ./tests/phpstan.sh ${{ matrix.presta-version }} ${{ matrix.php-version }}
