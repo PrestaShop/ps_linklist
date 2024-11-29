@@ -8,6 +8,7 @@ if [ $# -le 0 ]; then
 fi
 
 PS_VERSION=$1
+PHP_VERSION=$2
 BASEDIR=$(dirname "$0")
 MODULEDIR=$(cd $BASEDIR/.. && pwd)
 
@@ -21,20 +22,24 @@ fi
 echo "Pull PrestaShop files (Tag ${PS_VERSION})"
 
 docker rm -f temp-ps || true
-docker run -tid --rm --name temp-ps prestashop/prestashop:$PS_VERSION
-until docker exec -t temp-ps ls /var/www/html/modules/ps_linklist 2>&1 > /dev/null; do echo 'Wait for extraction'; sleep 2; done
+docker run -tid --rm -v ps-volume:/var/www/html -e DISABLE_MAKE=1 --name temp-ps prestashop/prestashop:$PS_VERSION-$PHP_VERSION
+
+# Wait for docker initialization (it may be longer for containers based on branches since they must install dependencies)
+until docker exec temp-ps ls /var/www/html/vendor/autoload.php 2> /dev/null; do
+  echo Waiting for docker initialization...
+  sleep 5
+done
 
 # Clear previous instance of the module in the PrestaShop volume
 echo "Clear previous module and copy current one"
 docker exec -t temp-ps rm -rf /var/www/html/modules/ps_linklist
-docker exec -t temp-ps mkdir -p /var/www/html/modules/ps_linklist
-docker cp $MODULEDIR temp-ps:/var/www/html/modules/
-echo "Run PHPStan using phpstan-${PS_VERSION}.neon file"
 
-docker exec \
-      -e _PS_ROOT_DIR_=/var/www/html \
-      --workdir=/var/www/html/modules/ps_linklist \
-      temp-ps \
-      ./vendor/bin/phpstan analyse \
-      --configuration=/var/www/html/modules/ps_linklist/tests/phpstan/phpstan-$PS_VERSION.neon \
-      "${@:2}"
+echo "Run PHPStan using phpstan-${PS_VERSION}.neon file"
+docker run --rm --volumes-from temp-ps \
+       -v $PWD:/var/www/html/modules/ps_linklist \
+       -e _PS_ROOT_DIR_=/var/www/html \
+       -e DISABLE_MAKE=1 \
+       --workdir=/var/www/html/modules/ps_linklist ghcr.io/phpstan/phpstan:1.10.45-php${PHP_VERSION} \
+       analyse \
+       --error-format=github \
+       --configuration=/var/www/html/modules/ps_linklist/tests/phpstan/phpstan-${PS_VERSION}.neon
