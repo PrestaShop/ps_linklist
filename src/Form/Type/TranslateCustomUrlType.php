@@ -31,7 +31,7 @@ class TranslateCustomUrlType extends TranslatableType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         foreach ($options['locales'] as $locale) {
             $localeOptions = $options['options'];
