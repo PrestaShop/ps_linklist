@@ -191,10 +191,18 @@ class LinkBlockRepository
         $this->updateLanguages($linkBlockId, $data['block_name'], $data['custom_content']);
 
         if ($this->isMultiStoreUsed) {
+            $unassociatedShopIds = $this->getUnassociatedShopIds($linkBlockId);
             $this->objectModelHandler->handleMultiShopAssociation(
                 $linkBlockId,
                 $data['shop_association']
             );
+
+            // Intersects shops that were not previously associated with those just selected,
+            // so that the position is updated only for the newly added shops.
+            $shopIds = array_intersect($unassociatedShopIds, $data['shop_association']);
+            if ($shopIds) {
+                $this->updateMaxPosition((int) $linkBlockId, (int) $data['id_hook'], $shopIds);
+            }
         }
     }
 
@@ -436,18 +444,25 @@ class LinkBlockRepository
     private function getHookMaxPosition(int $idHook, int $idShop): int
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('MAX(lbs.position)')
+
+        $qb->select('COUNT(lbs.id_link_block) AS total, MAX(lbs.position) AS max_position')
             ->from($this->dbPrefix . 'link_block_shop', 'lbs')
             ->leftJoin('lbs', $this->dbPrefix . 'link_block', 'lb', 'lbs.id_link_block = lb.id_link_block')
             ->andWhere('lb.id_hook = :idHook')
             ->andWhere('lbs.id_shop = :idShop')
             ->setParameter('idHook', $idHook)
-            ->setParameter('idShop', $idShop)
-        ;
+            ->setParameter('idShop', $idShop);
 
-        $maxPosition = $qb->execute()->fetch(\PDO::FETCH_COLUMN);
+        $result = $qb->execute()->fetchAssociative();
 
-        return null !== $maxPosition ? $maxPosition + 1 : 0;
+        $total = (int) ($result['total'] ?? 0);
+        $maxPosition = (int) ($result['max_position'] ?? 0);
+
+        if ($total <= 1) {
+            return 0;
+        }
+
+        return $maxPosition + 1;
     }
 
     /**
@@ -510,5 +525,26 @@ class LinkBlockRepository
 
             throw new DatabaseException('Could not update positions.');
         }
+    }
+
+    private function getUnassociatedShopIds(
+        int $linkBlockId
+    ) {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('s.id_shop')
+            ->from($this->dbPrefix . 'shop', 's')
+            ->leftJoin(
+                's',
+                $this->dbPrefix . 'link_block_shop',
+                'lbs',
+                's.id_shop = lbs.id_shop AND lbs.id_link_block = :idLinkBlock'
+            )
+            ->where('lbs.id_shop IS NULL')
+            ->setParameter('idLinkBlock', $linkBlockId);
+
+        $rows = $qb->execute()->fetchAllAssociative();
+
+        return array_column($rows, 'id_shop');
     }
 }
