@@ -133,21 +133,48 @@ class LinkBlockPresenter
      */
     private function makeCmsLinks($cmsIds)
     {
-        $cmsLinks = [];
+        $pages = [];
         foreach ($cmsIds as $cmsId) {
             $cms = new \CMS((int) $cmsId);
             if (null !== $cms->id && $cms->active) {
-                $cmsLinks[] = [
-                    'id' => 'link-cms-page-' . $cms->id,
-                    'class' => 'cms-page-link',
-                    'title' => $cms->meta_title[(int) $this->language->id],
-                    'description' => $cms->meta_description[(int) $this->language->id],
-                    'url' => $this->link->getCMSLink($cms),
-                ];
+                $pages[] = $cms;
             }
         }
 
+        $this->sortByPagePosition($pages);
+
+        $cmsLinks = [];
+        foreach ($pages as $cms) {
+            $cmsLinks[] = [
+                'id' => 'link-cms-page-' . $cms->id,
+                'class' => 'cms-page-link',
+                'title' => $cms->meta_title[(int) $this->language->id],
+                'description' => $cms->meta_description[(int) $this->language->id],
+                'url' => $this->link->getCMSLink($cms),
+            ];
+        }
+
         return $cmsLinks;
+    }
+
+    /**
+     * Order pages the way Design > Pages shows them.
+     *
+     * WHY: the block stores the selected page ids in whatever order the configuration form
+     * submitted them, and renders that order, so a page reordered in Design > Pages keeps its
+     * old place in the widget while the back office lists it in the new one. The page position
+     * is the merchant-managed order, so it is the one the widget follows. `position` is scoped
+     * to `id_cms_category`, hence the category first; the id is only a tie-break, because
+     * positions are not guaranteed unique across a category.
+     *
+     * @param \CMS[] $pages
+     */
+    private function sortByPagePosition(array &$pages)
+    {
+        usort($pages, function (\CMS $a, \CMS $b) {
+            return [(int) $a->id_cms_category, (int) $a->position, (int) $a->id]
+                <=> [(int) $b->id_cms_category, (int) $b->position, (int) $b->id];
+        });
     }
 
     /**
