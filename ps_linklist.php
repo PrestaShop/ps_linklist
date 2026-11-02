@@ -77,16 +77,12 @@ class Ps_Linklist extends Module implements WidgetInterface
         $this->need_instance = 0;
         $this->tab = 'front_office_features';
 
-        $tabNames = [];
-        foreach (Language::getLanguages(true) as $lang) {
-            $tabNames[$lang['locale']] = $this->trans('Link List', [], 'Modules.Linklist.Admin', $lang['locale']);
-        }
         $this->tabs = [
             [
                 'route_name' => 'admin_link_block_list',
                 'class_name' => 'AdminLinkWidget',
                 'visible' => true,
-                'name' => $tabNames,
+                'name' => 'Link List',
                 'parent_class_name' => 'AdminParentThemes',
                 'wording' => 'Link List',
                 'wording_domain' => 'Modules.Linklist.Admin',
@@ -111,6 +107,23 @@ class Ps_Linklist extends Module implements WidgetInterface
             ])
         );
         $this->legacyBlockRepository = new LegacyLinkBlockRepository(Db::getInstance(), $this->context->shop, $this->context->getTranslator());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTabs()
+    {
+        $tabs = parent::getTabs();
+        // WHY: translating into another language loads that language's whole catalogue, so the localized
+        // names are built only when the core reads the tabs (install, reload), not each time the module is built.
+        $tabNames = [];
+        foreach (Language::getLanguages(true) as $lang) {
+            $tabNames[$lang['locale']] = $this->trans('Link List', [], 'Modules.Linklist.Admin', $lang['locale']);
+        }
+        $tabs[0]['name'] = $tabNames;
+
+        return $tabs;
     }
 
     public function install()
